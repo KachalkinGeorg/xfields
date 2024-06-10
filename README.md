@@ -1,7 +1,7 @@
 # xfields
  Дополнительные поля
  
-Автор [xfields](https://github.com/KachalkinGeorg/plugins/tree/main/xfields) является Vitaly A. Ponomarev
+Автор [xfields](https://github.com/vponomarev/ngcms-plugins/tree/master/xfields) является Vitaly A. Ponomarev
 
 История изменений:
 [0.33][08.05.2024]
