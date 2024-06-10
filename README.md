@@ -11,4 +11,4 @@
 % Устранена проблема с поддержкой доп. поля типа INT (только цифры) 
 % Изменения интерфейса
 
-![](https://github.com/KachalkinGeorg/xfields/blob/main/Screenshot_1.jpg?raw=true)
+![](https://github.com/KachalkinGeorg/xfields/blob/main/Screenshot_1.jpeg?raw=true)
