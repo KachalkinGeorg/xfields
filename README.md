@@ -11,6 +11,8 @@
 - Устранена проблема с поддержкой доп. поля типа INT (только цифры) 
 - Изменения интерфейса
 
+Подробнее об истории изменений можно ознакомиться [тут](https://github.com/KachalkinGeorg/xfields/blob/main/history)
+
 ![](https://github.com/KachalkinGeorg/xfields/blob/main/Screenshot_1.jpeg?raw=true)
 
 О полях как гиперссылки. Данное поле работает только со значениями:
