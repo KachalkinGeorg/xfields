@@ -4,7 +4,7 @@
 
 ID: xfields
 Name: Дополнительные поля
-Version: 0.33
+Version: 0.34
 Acts: core, admin:mod:news, admin:mod:categories
 File: xfields.php
 Actions: rpc;lib/librpc.php

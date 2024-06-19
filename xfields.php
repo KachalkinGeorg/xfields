@@ -947,12 +947,13 @@ class XFieldsNewsFilter extends NewsFilter
 						$temp_array = explode(',', $xfk);
 						foreach ($temp_array as $xf_id) {
 							$xf_id = trim($xf_id);
+							$xf_t = (count($temp_array) > 1) ? ', ' : '';
 							if (!$xf_id) continue;
 							$xf_link = checkLinkAvailable('xfields', '') ?
 								generateLink('xfields', '', array('xf_id' => $xf_id)) :
-								generateLink('core', 'plugin', array('plugin' => 'xfields', 'handler' => ''), array('xf_id' => $xf_id));
+								generateLink('core', 'plugin', array('plugin' => 'xfields'), array('xf_id' => $xf_id));
 								
-							$xk_link .= '<a title="'.$xf_id.'" href="'.$xf_link.'" target="_blank">'.$xf_id.$v['id'].'</a> ';
+							$xk_link .= '<a title="'.$v['title'].': '.$xf_id.'" href="'.$xf_link.'" target="_blank">'.$xf_id.$v['id'].'</a>'.$xf_t;
 						}
 
 						$xfk = $xk_link;
@@ -1493,57 +1494,48 @@ class XFieldsCoreFilter extends CoreFilter
 function xfields_link($params) {
 	global $tpl, $template, $twig, $mysql, $SYSTEM_FLAGS, $config, $userROW, $newsID, $CurrentHandler, $lang, $parse, $TemplateCache;
 	
-	$xf_id = isset($params['xf_id'])?$params['xf_id']:$CurrentHandler['params']['xf_id'];
-	
-	$xf = xf_configLoad();
-	foreach ($xf['news'] as $k => $v) {
-		$kp = preg_quote($k, "'");
-	}
-	
-	$pageNo	= intval($params['page']) ? intval($params['page']) : intval($_REQUEST['page']);
-
-	if ($pageNo){
-		$meta_group = "". $kp." Страница - ". $pageNo."";
-	} else {
-		$meta_group = "". $kp."";			
-	}
-	
-/*
-	получаем список из таблицы
-	$rc = $mysql->record('select * from ' . prefix . '_news where xfields_'.$kp.' = '.$xf_id.'');
-		
-	$catalog_kod = explode(", ", $rc['xfields_'.$kp.'']);
-	foreach($catalog_kod as $k=>$v){
-		$catalog_kod[$k] = $v;
-
-	}
-	$catalog_kod = implode('', $catalog_kod); */
-	
-	$SYSTEM_FLAGS['meta']['robots'] = 'noindex,nofollow';
-	
-	$SYSTEM_FLAGS['info']['title']['secure_html'] = $meta_group;
-
-	$SYSTEM_FLAGS['info']['title']['group'] = secure_html($meta_group);
-	$SYSTEM_FLAGS['info']['breadcrumbs'] = array(
-		array('text' => ''.$kp.' '.$config['separator'].' '.$xf_id.''),
-	);
-	
 	$tpath = locatePluginTemplates(array('show_xf', 'pages'), 'xfields', pluginGetVariable('xfields', 'localsource'), pluginGetVariable('xfields', 'skin') ? pluginGetVariable('xfields', 'skin') : 'default');
 	include_once root . 'includes/news.php';
 	
 	LoadPluginLang('xfields', 'main', '', '', ':');
+	
+	$xf_id = isset($params['xf_id'])?$params['xf_id']:$CurrentHandler['params']['xf_id'];
+
+	$pageNo	= intval($params['page']) ? intval($params['page']) : intval($_REQUEST['page']);
+	
+	$xf = xf_configLoad();
 
 	$where = array();
-
 	$temp_array = array();
-	
-	$match_xf = explode (',', $xf_id);
 
-	foreach ($match_xf as $value) {
-		$value = htmlspecialchars ( strip_tags ( stripslashes ( trim ( $value ) ) ), ENT_QUOTES, "UTF-8" ) ;
-		$temp_array[] = "xfields_".$kp." LIKE '%{$value}%'";
-	}		
+	foreach ($xf['news'] as $k => $v) {
+		$kp = preg_quote($k, "'");
 		
+		if ($v['xf_field']) {
+
+			$match_xf = explode (',', $xf_id);
+			foreach ($match_xf as $value) {
+				$value = htmlspecialchars ( strip_tags ( stripslashes ( trim ( $value ) ) ), ENT_QUOTES, "UTF-8" ) ;
+				$temp_array[] = "xfields_".$kp." LIKE '%{$value}%'";
+			}
+
+		}
+	}	
+
+	if ($pageNo){
+		$meta_group = ''.$xf_id.' '.$config['separator'].' '.$kp.' страница - '.$pageNo.'';
+	} else {
+		$meta_group = ''.$xf_id.' '.$config['separator'].' '.$kp.'';			
+	}
+	
+	$SYSTEM_FLAGS['meta']['robots'] = 'noindex,nofollow';	
+	$SYSTEM_FLAGS['info']['title']['header'] = 'Сортировка по полю';
+	$SYSTEM_FLAGS['info']['title']['group'] = secure_html($meta_group);
+	$SYSTEM_FLAGS['info']['title']['item'] = $config['home_title'];
+	$SYSTEM_FLAGS['info']['breadcrumbs'] = array(
+		array('text' => $xf_id),
+	);
+	
 	$where[] = "(".implode(' OR ', $temp_array).")";
 	$where[] = "approve=1";
 
@@ -1577,7 +1569,7 @@ function xfields_link($params) {
 	$tpl->vars('pages', $tvars);
 	$pages = $tpl->show('pages');
 
-	foreach ($mysql->select('select * from '.prefix.'_news WHERE '.implode(' AND ', $where).' ORDER BY xfields_'.$kp.' ASC LIMIT '.intval($limitStart).', '.intval($limitCount)) as $row){
+	foreach ($mysql->select('select * from '.prefix.'_news WHERE '.implode(' AND ', $where).' ORDER BY id ASC LIMIT '.intval($limitStart).', '.intval($limitCount)) as $row){
 		$entries .= news_showone($newsID, '', array('overrideTemplateName' => 'show_xf', 'overrideTemplatePath' => $tpath['show_xf'], 'emulate' => $row, 'style' => 'export', 'plugin' => 'xfields'));
 	}
 
